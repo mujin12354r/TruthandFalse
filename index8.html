@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Truth and False</title>
+    <style>
+        .vote-buttons {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Truth and False</h1>
+    <input type="text" id="sentenceInput" placeholder="Add your sentence here">
+    <button onclick="addSentence()">Submit</button>
+    <div id="sentences"></div>
+
+    <script>
+        // 로컬 스토리지 기반으로 문장별 투표 제한
+        function addSentence() {
+            const input = document.getElementById('sentenceInput').value;
+            const container = document.getElementById('sentences');
+
+            if (!input) {
+                alert("Please enter a sentence!");
+                return;
+            }
+
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <p>${input}</p>
+                <div class="vote-buttons">
+                    T: <span class="vote-count" id="${input}-T">0</span>
+                    <button onclick="vote('${input}', '${input}-T')">Vote T</button>
+                    F: <span class="vote-count" id="${input}-F">0</span>
+                    <button onclick="vote('${input}', '${input}-F')">Vote F</button>
+                    N: <span class="vote-count" id="${input}-N">0</span>
+                    <button onclick="vote('${input}', '${input}-N')">Vote N</button>
+                </div>`;
+            container.appendChild(div);
+            document.getElementById('sentenceInput').value = ''; // 입력 초기화
+        }
+
+        function vote(sentence, voteKey) {
+            const totalVotesKey = `${sentence}-totalVotes`; // 해당 문장의 총 투표 기록
+            const voteElement = document.getElementById(voteKey);
+            
+            // 로컬 저장소에서 현재 총 투표 수 가져오기
+            const totalVotes = JSON.parse(localStorage.getItem(totalVotesKey)) || 0;
+
+            if (totalVotes >= 2) {
+                alert("You can only vote twice for this sentence!");
+                return;
+            }
+
+            // 총 투표 수 증가 및 저장
+            localStorage.setItem(totalVotesKey, JSON.stringify(totalVotes + 1));
+
+            // 해당 선택지의 투표 수 업데이트
+            if (voteElement) {
+                let currentVote = parseInt(voteElement.textContent, 10);
+                voteElement.textContent = currentVote + 1;
+            }
+        }
+    </script>
+</body>
+</html>
